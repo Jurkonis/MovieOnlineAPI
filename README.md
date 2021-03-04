@@ -8,5 +8,6 @@ This project was created using .Net core 3.1 and EntityFramework.
 
 - Open your terminal and then type `git clone https://github.com/Jurkonis/MovieOnlineAPI.git`
 - Import Mssql database from `MovieOnline.bacpac`
+- Update `appsettings.json`
 - `cd` into the new folder
 - To run the project type `dotnet run`
