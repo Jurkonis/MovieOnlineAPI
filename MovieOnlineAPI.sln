@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31019.35
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieOnlineAPI", "MovieOnlineAPI.csproj", "{32F71024-3978-4B5E-AC10-86442DB50704}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{32F71024-3978-4B5E-AC10-86442DB50704}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32F71024-3978-4B5E-AC10-86442DB50704}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32F71024-3978-4B5E-AC10-86442DB50704}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32F71024-3978-4B5E-AC10-86442DB50704}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {01B0A5B3-5C9A-4177-9778-FAB6121DAB52}
+	EndGlobalSection
+EndGlobal
