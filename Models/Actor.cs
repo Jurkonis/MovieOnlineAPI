@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace MovieOnlineAPI.Models
 {
@@ -9,5 +10,8 @@ namespace MovieOnlineAPI.Models
 		public string FirstName { get; set; }
 		[Required]
 		public string LastName { get; set; }
+
+
+		public ICollection<MovieActor> ActorMovies { get; set; }
 	}
 }

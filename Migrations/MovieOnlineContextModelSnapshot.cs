@@ -18,6 +18,26 @@ namespace MovieOnlineAPI.Migrations
                 .HasAnnotation("ProductVersion", "5.0.3")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("MovieOnlineAPI.Models.Actor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Actors");
+                });
+
             modelBuilder.Entity("MovieOnlineAPI.Models.Genre", b =>
                 {
                     b.Property<int>("Id")
@@ -41,10 +61,6 @@ namespace MovieOnlineAPI.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Actors")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -59,6 +75,28 @@ namespace MovieOnlineAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Movies");
+                });
+
+            modelBuilder.Entity("MovieOnlineAPI.Models.MovieActor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("ActorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MovieId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorId");
+
+                    b.HasIndex("MovieId");
+
+                    b.ToTable("MovieActors");
                 });
 
             modelBuilder.Entity("MovieOnlineAPI.Models.MovieGenre", b =>
@@ -83,6 +121,21 @@ namespace MovieOnlineAPI.Migrations
                     b.ToTable("MovieGenres");
                 });
 
+            modelBuilder.Entity("MovieOnlineAPI.Models.MovieActor", b =>
+                {
+                    b.HasOne("MovieOnlineAPI.Models.Actor", null)
+                        .WithMany("ActorMovies")
+                        .HasForeignKey("ActorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MovieOnlineAPI.Models.Movie", null)
+                        .WithMany("Actors")
+                        .HasForeignKey("MovieId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("MovieOnlineAPI.Models.MovieGenre", b =>
                 {
                     b.HasOne("MovieOnlineAPI.Models.Genre", null)
@@ -98,6 +151,11 @@ namespace MovieOnlineAPI.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("MovieOnlineAPI.Models.Actor", b =>
+                {
+                    b.Navigation("ActorMovies");
+                });
+
             modelBuilder.Entity("MovieOnlineAPI.Models.Genre", b =>
                 {
                     b.Navigation("GenreMovies");
@@ -105,6 +163,8 @@ namespace MovieOnlineAPI.Migrations
 
             modelBuilder.Entity("MovieOnlineAPI.Models.Movie", b =>
                 {
+                    b.Navigation("Actors");
+
                     b.Navigation("Genres");
                 });
 #pragma warning restore 612, 618

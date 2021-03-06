@@ -19,38 +19,12 @@ namespace MovieOnlineAPI.Controllers
 		}
 
 		[HttpGet]
-		public IEnumerable<Movie> GetMovie(string order, string search)
+		public IEnumerable<Movie> GetMovies(string search)
 		{
-			var movies = _context.Movies.Include(x => x.Genres);
+			var movies = _context.Movies.Include(x => x.Genres).Include(x => x.Actors);
 
-			if(order != null && search != null)
-			{
-				switch (order)
-				{
-					case "name_desc":
-						return movies.Where(x => x.Name.Contains(search)).OrderByDescending(m => m.Name);
-					case "date":
-						return movies.Where(x => x.Name.Contains(search)).OrderBy(m => m.ReleaseYear);
-					case "date_desc":
-						return movies.Where(x => x.Name.Contains(search)).OrderByDescending(m => m.ReleaseYear);
-					default:
-						return movies.Where(x => x.Name.Contains(search)).OrderBy(m => m.Name);
-				}
-			}
-			if(order != null)
-				switch (order)
-				{
-					case "name_desc":
-						return movies.OrderByDescending(m => m.Name);
-					case "date":
-						return movies.OrderBy(m => m.ReleaseYear);
-					case "date_desc":
-						return movies.OrderByDescending(m => m.ReleaseYear);
-					default:
-						return movies.OrderBy(m => m.Name);
-				}
 			if (search != null)
-				return movies.Where(x => x.Name.Contains(search));
+				return movies.Where(x => x.Name.Contains(search) || x.ReleaseYear.ToString().Contains(search));
 
 			return movies;
 		}
@@ -58,7 +32,7 @@ namespace MovieOnlineAPI.Controllers
 		[HttpGet("{id}")]
 		public ActionResult GetMovie(int id)
 		{
-			Movie movie = _context.Movies.Include(x => x.Genres).FirstOrDefault(x => x.Id == id);
+			Movie movie = _context.Movies.Include(x => x.Genres).Include(x => x.Actors).FirstOrDefault(x => x.Id == id);
 
 			if (movie == null)
 			{
@@ -76,29 +50,52 @@ namespace MovieOnlineAPI.Controllers
 				return BadRequest(ModelState);
 			}
 
+			var ob = _context.Movies.Where(x => x.Name.ToLower() == movie.Name.ToLower()).FirstOrDefault();
+
+			if (ob != null)
+			{
+				return BadRequest("Movie name taken");
+			}
+
 			_context.Movies.Add(movie);
 			_context.SaveChanges();
 
 			return Ok(movie);
 		}
 
-		//[HttpPost("actor")]
-		//public ActionResult AddActorToMovie(MovieActor ob)
-		//{
-		//	Movie movie = _context.Movies.Find(ob.MovieId);
+		[HttpPost("actor")]
+		public ActionResult AddActorToMovie(MovieActor ob)
+		{
+			Movie movie = _context.Movies.Find(ob.MovieId);
 
-		//	Actor actor = _context.Actors.Find(ob.ActorId);
+			Actor actor = _context.Actors.Find(ob.ActorId);
 
-		//	if( movie == null || actor == null)
-		//	{
-		//		return NotFound();
-		//	}
+			if (movie == null || actor == null)
+			{
+				return NotFound();
+			}
 
-		//	_context.MovieActors.Add(ob);
-		//	_context.SaveChanges();
+			_context.MovieActors.Add(ob);
+			_context.SaveChanges();
 
-		//	return Ok(ob);
-		//}
+			return Ok(ob);
+		}
+
+		[HttpDelete("actor/{id}")]
+		public ActionResult RemoveActorToMovie(int id)
+		{
+			var movieActor = _context.MovieActors.Find(id);
+
+			if (movieActor == null)
+			{
+				return NotFound();
+			}
+
+			_context.MovieActors.Remove(movieActor);
+			_context.SaveChanges();
+
+			return Ok(movieActor);
+		}
 
 		[HttpPost("genre")]
 		public ActionResult AddGenreToMovie(MovieGenre ob)
@@ -121,36 +118,17 @@ namespace MovieOnlineAPI.Controllers
 		[HttpDelete("genre/{id}")]
 		public ActionResult RemoveGenreToMovie(int id)
 		{
-			var genre = _context.MovieGenres.Find(id);
+			var movieGenre = _context.MovieGenres.Find(id);
 
-			if (genre == null)
+			if (movieGenre == null)
 			{
 				return NotFound();
 			}
 
-			_context.MovieGenres.Remove(genre);
+			_context.MovieGenres.Remove(movieGenre);
 			_context.SaveChanges();
 
-			return Ok(genre);
-		}
-
-		[HttpDelete("genres/{id}")]
-		public ActionResult RemoveAllGenreToMovie(int id)
-		{
-			var movie = _context.Movies.Include(x => x.Genres).FirstOrDefault(x => x.Id == id);
-
-			if (movie == null)
-			{
-				return NotFound();
-			}
-
-			foreach(MovieGenre genre in movie.Genres)
-			{
-				_context.MovieGenres.Remove(genre);
-				_context.SaveChanges();
-			}
-
-			return Ok(movie);
+			return Ok(movieGenre);
 		}
 
 		[HttpPut("{id}")]
@@ -171,7 +149,7 @@ namespace MovieOnlineAPI.Controllers
 			_context.Movies.Update(movie);
 			_context.SaveChanges();
 
-			movie = _context.Movies.Include(x => x.Genres).FirstOrDefault(x => x.Id == id);
+			movie = _context.Movies.Include(x => x.Genres).Include(x => x.Actors).FirstOrDefault(x => x.Id == id);
 
 			return Ok(movie);
 		}

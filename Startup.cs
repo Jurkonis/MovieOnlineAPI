@@ -34,7 +34,7 @@ namespace MovieOnlineAPI
 					   .AllowAnyHeader();
 			}));
 
-			services.AddControllers();
+			services.AddControllers().AddNewtonsoftJson();
 
 			services.AddDbContext<MovieOnlineContext>(options => options.UseSqlServer(
 				Configuration.GetConnectionString("Default")));

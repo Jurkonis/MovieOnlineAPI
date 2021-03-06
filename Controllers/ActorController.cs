@@ -1,116 +1,121 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using MovieOnlineAPI.Data;
 using MovieOnlineAPI.Models;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace ActorOnlineAPI.Controllers
+namespace MovieOnlineAPI.Controllers
 {
 	[Route("api/[controller]")]
 	[ApiController]
 	public class ActorController : ControllerBase
 	{
-		//private readonly MovieOnlineContext _context;
+		private readonly MovieOnlineContext _context;
 
-		//public ActorController(MovieOnlineContext context)
-		//{
-		//	_context = context;
-		//}
+		public ActorController(MovieOnlineContext context)
+		{
+			_context = context;
+		}
 
-		//[HttpGet]
-		//public IEnumerable<Actor> GetActor(string order, string search)
-		//{
-		//	var actors = _context.Actors;
+		[HttpGet]
+		public IEnumerable<Actor> GetActor()
+		{
+			var actors = _context.Actors.Include(x => x.ActorMovies);
 
-		//	if (order != null && search != null)
-		//	{
-		//		switch (order)
-		//		{
-		//			case "name_desc":
-		//				return actors.Where(x => x.FirstName.Contains(search) || x.LastName.Contains(search)).OrderByDescending(x => x.FirstName);
-		//			default:
-		//				return actors.Where(x => x.FirstName.Contains(search) || x.LastName.Contains(search)).OrderBy(x => x.FirstName);
-		//		}
-		//	}
-		//	if (order != null)
-		//		switch (order)
-		//		{
-		//			case "name_desc":
-		//				return actors.OrderByDescending(x => x.FirstName);
-		//			default:
-		//				return actors.OrderBy(x => x.FirstName);
-		//		}
-		//	if (search != null)
-		//		return actors.Where(x => x.FirstName.Contains(search) || x.LastName.Contains(search));
+			return actors;
+		}
 
-		//	return actors;
-		//}
+		[HttpPost("{left}")]
+		public IEnumerable<Actor> GetLEftActor(List<MovieActor> movieActors)
+		{
+			var actors = _context.Actors.Include(x => x.ActorMovies).ToList();
 
-		//[HttpGet("{id}")]
-		//public ActionResult GetActor(int id)
-		//{
-		//	Actor actor = _context.Actors.Find(id);
+			foreach (MovieActor movieActor in movieActors)
+			{
+				var actor = _context.Actors.Find(movieActor.ActorId);
+				actors.Remove(actor);
+			}
 
-		//	if (actor == null)
-		//	{
-		//		return NotFound();
-		//	}
+			return actors;
+		}
 
-		//	return Ok(actor);
-		//}
+		[HttpGet("{id}")]
+		public ActionResult GetActor(int id)
+		{
+			Actor actor = _context.Actors.Include(x => x.ActorMovies).FirstOrDefault(x => x.Id == id);
 
-		//[HttpPost]
-		//public ActionResult PostActor(Actor actor)
-		//{
-		//	if (!ModelState.IsValid)
-		//	{
-		//		return BadRequest(ModelState);
-		//	}
+			if (actor == null)
+			{
+				return NotFound();
+			}
 
-		//	_context.Actors.Add(actor);
-		//	_context.SaveChanges();
+			return Ok(actor);
+		}
 
-		//	return Ok(actor);
-		//}
+		[HttpPost]
+		public ActionResult PostActor(Actor actor)
+		{
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(ModelState);
+			}
 
-		//[HttpPut]
-		//public IActionResult PutActor(Actor actor)
-		//{
-		//	if (!ModelState.IsValid)
-		//	{
-		//		return BadRequest(ModelState);
-		//	}
+			var ob = _context.Actors.Where(x => x.FirstName.ToLower() == actor.FirstName.ToLower() && x.LastName.ToLower() == actor.LastName.ToLower()).FirstOrDefault();
 
-		//	if (!actorExists(actor.Id))
-		//	{
-		//		return BadRequest();
-		//	}
+			if (ob != null)
+			{
+				return BadRequest("Actor name taken");
+			}
 
-		//	_context.Actors.Update(actor);
-		//	_context.SaveChanges();
+			_context.Actors.Add(actor);
+			_context.SaveChanges();
 
-		//	return Ok(actor);
-		//}
+			actor = _context.Actors.Include(x => x.ActorMovies).FirstOrDefault(x => x.Id == actor.Id);
 
-		//[HttpDelete("{id}")]
-		//public IActionResult DeleteActor(int id)
-		//{
-		//	Actor actor = _context.Actors.Find(id);
+			return Ok(actor);
+		}
 
-		//	if (actor == null)
-		//	{
-		//		return NotFound();
-		//	}
+		[HttpPut("{id}")]
+		public IActionResult PutActor(int id, Actor actor)
+		{
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(ModelState);
+			}
 
-		//	_context.Actors.Remove(actor);
-		//	_context.SaveChanges();
+			if (!movieExists(id))
+			{
+				return BadRequest();
+			}
 
-		//	return Ok(actor);
-		//}
+			actor.Id = id;
 
-		//private bool actorExists(int id)
-		//{
-		//	return _context.Actors.Count(e => e.Id == id) > 0;
-		//}
+			_context.Actors.Update(actor);
+			_context.SaveChanges();
+
+			return Ok(actor);
+		}
+
+		[HttpDelete("{id}")]
+		public IActionResult DeleteActor(int id)
+		{
+			Actor actor = _context.Actors.Find(id);
+
+			if (actor == null)
+			{
+				return NotFound();
+			}
+
+			_context.Actors.Remove(actor);
+			_context.SaveChanges();
+
+			return Ok(actor);
+		}
+
+		private bool movieExists(int id)
+		{
+			return _context.Actors.Count(e => e.Id == id) > 0;
+		}
 	}
 }

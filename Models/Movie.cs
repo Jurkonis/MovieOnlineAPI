@@ -14,9 +14,9 @@ namespace MovieOnlineAPI.Models
 		[Required]
 		[Range(1, int.MaxValue, ErrorMessage = "The Year field is required.")]
 		public int ReleaseYear { get; set; }
-		[Required]
-		public string Actors { get; set; }
 
 		public ICollection<MovieGenre> Genres { get; set; }
+
+		public ICollection<MovieActor> Actors { get; set; }
 	}
 }

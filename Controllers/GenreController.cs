@@ -5,7 +5,7 @@ using MovieOnlineAPI.Models;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GenrieOnlineAPI.Controllers
+namespace MovieOnlineAPI.Controllers
 {
 	[Route("api/[controller]")]
 	[ApiController]
@@ -19,30 +19,23 @@ namespace GenrieOnlineAPI.Controllers
 		}
 
 		[HttpGet]
-		public IEnumerable<Genre> GetGenrie(string order, string search)
+		public IEnumerable<Genre> GetGenrie()
 		{
 			var genres = _context.Genres.Include(x => x.GenreMovies);
 
-			if (order != null && search != null)
+			return genres;
+		}
+
+		[HttpPost("{left}")]
+		public IEnumerable<Genre> GetLEftGenrie(List<MovieGenre> movieGenres)
+		{
+			var genres = _context.Genres.Include(x => x.GenreMovies).ToList();
+
+			foreach (MovieGenre movieGenre in movieGenres)
 			{
-				switch (order)
-				{
-					case "name_desc":
-						return genres.Where(x => x.Name.Contains(search)).OrderByDescending(x => x.Name);
-					default:
-						return genres.Where(x => x.Name.Contains(search)).OrderBy(x => x.Name);
-				}
+				var genre = _context.Genres.Find(movieGenre.GenreId);
+				genres.Remove(genre);
 			}
-			if (order != null)
-				switch (order)
-				{
-					case "name_desc":
-						return genres.OrderByDescending(x => x.Name);
-					default:
-						return genres.OrderBy(x => x.Name);
-				}
-			if (search != null)
-				return genres.Where(x => x.Name.Contains(search));
 
 			return genres;
 		}
@@ -66,6 +59,13 @@ namespace GenrieOnlineAPI.Controllers
 			if (!ModelState.IsValid)
 			{
 				return BadRequest(ModelState);
+			}
+
+			var ob = _context.Genres.Where(x => x.Name.ToLower() == genre.Name.ToLower()).FirstOrDefault();
+
+			if (ob != null)
+			{
+				return BadRequest("Genre name taken");
 			}
 
 			_context.Genres.Add(genre);
